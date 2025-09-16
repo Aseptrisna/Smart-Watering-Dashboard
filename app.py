@@ -43,12 +43,27 @@ def index():
 @app.route('/home')
 @login_required
 def home():
-    if 'user_id' in session:
-        user = mongo.db.users.find_one({'_id': ObjectId(session['user_id'])})
-        farms = list(mongo.db.farms.find({'user_id': ObjectId(session['user_id'])}))
-        devices = list(mongo.db.devices.find({'user_id': ObjectId(session['user_id'])}))
-        return render_template('dashboard.html', user=user, farms=farms, devices=devices)
-    return render_template('dashboard.html')
+    # Pengecekan 'user_id' di session sudah ditangani oleh @login_required
+    user_id = ObjectId(session['user_id'])
+    
+    user = mongo.db.users.find_one({'_id': user_id})
+    
+    # Ambil daftar lahan untuk ditampilkan di peta
+    farms = list(mongo.db.farms.find({'user_id': user_id}))
+    
+    # Hitung jumlah data menggunakan count_documents agar lebih efisien
+    farms_count = mongo.db.farms.count_documents({'user_id': user_id})
+    devices_count = mongo.db.devices.count_documents({'user_id': user_id})
+    # Sesuai label di HTML "Jadwal Aktif", kita hanya hitung yang 'enabled'
+    schedules_count = mongo.db.schedules.count_documents({'user_id': user_id, 'enabled': True})
+    
+    return render_template('dashboard.html', 
+                           user=user, 
+                           farms=farms, 
+                           farms_count=farms_count,
+                           devices_count=devices_count,
+                           schedules_count=schedules_count)
+
 # Auth routes
 @app.route('/auth/login', methods=['GET', 'POST'])
 def login():
@@ -302,6 +317,23 @@ def add_device():
     
     return render_template('device/add_device.html', farms=farms)
 
+# @app.route('/device/<device_id>')
+# @login_required
+# def device_detail(device_id):
+#     device = mongo.db.devices.find_one({'_id': ObjectId(device_id), 'user_id': ObjectId(session['user_id'])})
+#     if not device:
+#         flash('Perangkat tidak ditemukan!', 'danger')
+#         return redirect(url_for('devices'))
+    
+#     farm = mongo.db.farms.find_one({'_id': device['farm_id']})
+    
+#     # Get latest sensor data
+#     sensor_data = list(mongo.db.sensor_data.find({'device_id': ObjectId(device_id)}))
+    
+#     return render_template('device/device_detail.html', device=device, farm=farm, sensor_data=sensor_data)
+
+# app.py
+
 @app.route('/device/<device_id>')
 @login_required
 def device_detail(device_id):
@@ -312,10 +344,28 @@ def device_detail(device_id):
     
     farm = mongo.db.farms.find_one({'_id': device['farm_id']})
     
-    # Get latest sensor data
-    sensor_data = list(mongo.db.sensor_data.find({'device_id': ObjectId(device_id)}))
+    sensor_data_cursor = mongo.db.sensor_data.find({'device_id': ObjectId(device_id)}) \
+                                              .sort('timestamp', -1) \
+                                              .limit(50)
     
-    return render_template('device/device_detail.html', device=device, farm=farm, sensor_data=sensor_data)
+    # ================== BLOK PERBAIKAN DIMULAI DI SINI ==================
+    
+    sensor_data = []
+    for record in sensor_data_cursor:
+        # Ubah setiap ObjectId dan datetime menjadi string
+        record['_id'] = str(record['_id'])
+        record['user_id'] = str(record['user_id'])
+        record['device_id'] = str(record['device_id'])
+        # Konversi timestamp ke format ISO yang standar untuk JavaScript
+        record['timestamp'] = record['timestamp'].isoformat()
+        sensor_data.append(record)
+
+    # =================== BLOK PERBAIKAN SELESAI DI SINI ===================
+    
+    return render_template('device/device_detail.html', 
+                           device=device, 
+                           farm=farm, 
+                           sensor_data=sensor_data)
 
 @app.route('/device/<device_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -399,6 +449,21 @@ def control_device(device_id, command):
             {'_id': ObjectId(device_id)},
             {'$set': {'status': command}}
         )
+
+        # 3. DITAMBAHKAN: Simpan riwayat aksi manual ke database
+        # Di dalam fungsi control_device di app.py
+
+# DITAMBAHKAN: Simpan riwayat aksi manual ke koleksi sensor_data
+        mongo.db.sensor_data.insert_one({
+            'user_id': ObjectId(session['user_id']),
+            'device_id': ObjectId(device_id),
+            'timestamp': datetime.utcnow(),
+            'action': command,      # Menyimpan aksi (on/off)
+            'source': 'manual',     # Menandakan sumber aksi
+            'temperature': None,    # Tidak ada data sensor untuk aksi ini
+            'humidity': None,       # Tidak ada data sensor untuk aksi ini
+            # 'moisture': None        # Tidak ada data sensor untuk aksi ini
+        })
         
         return jsonify({'success': True, 'message': f'Perintah {command} berhasil dikirim!'})
     except Exception as e:
