@@ -32,9 +32,7 @@
             background-color: var(--bg-card);
             min-height: 100vh;
             border-right: 1px solid var(--border-color);
-            transition: margin-left 0.3s ease;
         }
-        .sidebar-brand { color: var(--color-text) !important; }
         .sidebar .nav-link {
             color: var(--color-text); font-weight: 500; padding: 0.85rem 1.5rem;
             margin: 0.25rem 1rem; border-radius: 0.5rem;
@@ -48,32 +46,18 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.07); }
-        .btn-primary { background-color: var(--color-primary); border-color: var(--color-primary); }
-        .btn-primary:hover { background-color: #14302A; border-color: #14302A; }
-
         .status-badge { font-size: 0.75rem; font-weight: 600; padding: 0.3em 0.6em; border-radius: 0.375rem; }
         .status-on { color: #155724; background-color: #d4edda; }
         .status-off { color: #721c24; background-color: #f8d7da; }
-
-        .bottom-nav { display: none; }
-        @media (max-width: 991.98px) {
-            .wrapper { display: block; }
-            .sidebar { position: fixed; z-index: 1050; margin-left: -260px; }
-            .sidebar.active { margin-left: 0; }
-            .content-area { padding: 1.5rem 1rem; }
-            body { padding-bottom: 80px; }
-            .bottom-nav {
-                display: flex; position: fixed; bottom: 0; left: 0; right: 0;
-                height: 65px; background-color: var(--bg-card);
-                border-top: 1px solid var(--border-color);
-                justify-content: space-around; align-items: center; z-index: 1000;
-            }
-            .bottom-nav-item {
-                display: flex; flex-direction: column; align-items: center;
-                text-decoration: none; color: var(--color-muted); font-size: 0.7rem;
-            }
-            .bottom-nav-item i { font-size: 1.5rem; }
-            .bottom-nav-item.active { color: var(--color-primary); }
+        .sensor-data-list { list-style: none; margin-bottom: 0; padding-left: 0; }
+        .sensor-data-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.25rem 0;
+        }
+        .sensor-data-list i {
+            margin-right: 0.5rem;
         }
     </style>
 </head>
@@ -125,15 +109,35 @@
                                 </div>
 
                                 {% if device.type == 'actuator' %}
-                                <div class="btn-group w-100 my-3" role="group">
-                                    <button type="button" class="btn btn-success device-control {% if device.status == 'on' %}active{% endif %}" data-device-id="{{ device._id }}" data-command="on"><i class="bi bi-play-fill"></i> ON</button>
-                                    <button type="button" class="btn btn-danger device-control {% if device.status == 'off' %}active{% endif %}" data-device-id="{{ device._id }}" data-command="off"><i class="bi bi-stop-fill"></i> OFF</button>
-                                </div>
+                                    <div class="btn-group w-100 my-3" role="group">
+                                        <button type="button" class="btn btn-success device-control" data-device-id="{{ device._id }}" data-command="on"><i class="bi bi-play-fill"></i> ON</button>
+                                        <button type="button" class="btn btn-danger device-control" data-device-id="{{ device._id }}" data-command="off"><i class="bi bi-stop-fill"></i> OFF</button>
+                                    </div>
                                 {% else %}
-                                <div class="text-center text-muted my-3 py-3">
-                                    <i class="bi bi-bar-chart-line fs-2"></i>
-                                    <p class="mb-0 small">Data sensor akan tampil di halaman detail.</p>
-                                </div>
+                                    <div class="my-3 py-2 border-top border-bottom">
+                                    {% if device._id|string in latest_data %}
+                                        {% set data = latest_data[device._id|string] %}
+                                        <ul class="sensor-data-list small">
+                                            <li>
+                                                <span><i class="bi bi-thermometer-half text-danger"></i> Suhu</span>
+                                                <strong>{{ '%.1f'|format(data.temperature) if 'temperature' in data and data.temperature is not none else '-' }} &deg;C</strong>
+                                            </li>
+                                            <li>
+                                                <span><i class="bi bi-droplet-fill text-primary"></i> Lembap Udara</span>
+                                                <strong>{{ '%.1f'|format(data.humidity) if 'humidity' in data and data.humidity is not none else '-' }} %</strong>
+                                            </li>
+                                            <li>
+                                                <span><i class="bi bi-moisture text-success"></i> Lembap Tanah</span>
+                                                <strong>{{ '%.1f'|format(data.moisture) if 'moisture' in data and data.moisture is not none else '-' }} %</strong>
+                                            </li>
+                                        </ul>
+                                        <small class="text-muted d-block text-center mt-2">Update: <span data-timestamp="{{ data.timestamp }}"></span></small>
+                                    {% else %}
+                                        <div class="text-center text-muted small py-3">
+                                            <i class="bi bi-hourglass-split"></i> Belum ada data diterima.
+                                        </div>
+                                    {% endif %}
+                                    </div>
                                 {% endif %}
                                 
                                 <div class="mt-auto border-top pt-3 d-flex justify-content-between">
@@ -150,16 +154,16 @@
                         </div>
                     </div>
                     {% else %}
-                    <div class="col-12">
-                         <div class="card text-center py-5">
-                            <div class="card-body">
-                                <i class="bi bi-cpu display-4 text-muted mb-3"></i>
-                                <h4 class="card-title">Anda Belum Memiliki Perangkat</h4>
-                                <p class="text-muted">Tambahkan perangkat sensor atau aktuator ke lahan Anda.</p>
-                                <a href="{{ url_for('add_device') }}" class="btn btn-primary mt-3"><i class="bi bi-plus-circle me-2"></i>Tambah Perangkat Pertama Anda</a>
-                            </div>
+                        <div class="col-12">
+                             <div class="card text-center py-5">
+                                 <div class="card-body">
+                                     <i class="bi bi-cpu display-4 text-muted mb-3"></i>
+                                     <h4 class="card-title">Anda Belum Memiliki Perangkat</h4>
+                                     <p class="text-muted">Tambahkan perangkat sensor atau aktuator ke lahan Anda.</p>
+                                     <a href="{{ url_for('add_device') }}" class="btn btn-primary mt-3"><i class="bi bi-plus-circle me-2"></i>Tambah Perangkat Pertama Anda</a>
+                                 </div>
+                             </div>
                         </div>
-                    </div>
                     {% endfor %}
                 </div>
             </div>
@@ -167,17 +171,22 @@
     </div>
 </div>
 
-<nav class="bottom-nav">
-    <a href="{{ url_for('home') }}" class="bottom-nav-item"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
-    <a href="{{ url_for('farms') }}" class="bottom-nav-item"><i class="bi bi-map"></i><span>Lahan</span></a>
-    <a href="{{ url_for('devices') }}" class="bottom-nav-item active"><i class="bi bi-cpu-fill"></i><span>Perangkat</span></a>
-    <a href="{{ url_for('profile') }}" class="bottom-nav-item"><i class="bi bi-person"></i><span>Profil</span></a>
-</nav>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Kontrol Aktuator
+    // --- FUNGSI UNTUK FORMAT WAKTU ---
+    const options = { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false };
+    const formatter = new Intl.DateTimeFormat('id-ID', options);
+
+    document.querySelectorAll('[data-timestamp]').forEach(elem => {
+        if(elem.dataset.timestamp) {
+            const date = new Date(elem.dataset.timestamp);
+            // Ganti titik dengan titik dua untuk format jam (misal 23.59 -> 23:59)
+            elem.textContent = formatter.format(date).replace(/\./g, ':'); 
+        }
+    });
+
+    // --- KONTROL AKTUATOR ---
     const controlButtons = document.querySelectorAll('.device-control');
     controlButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -188,7 +197,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Refresh halaman untuk melihat status terbaru
                         window.location.reload();
                     } else {
                         alert('Gagal mengirim perintah: ' + data.message);

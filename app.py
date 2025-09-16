@@ -278,16 +278,61 @@ def delete_farm(farm_id):
     return redirect(url_for('farms'))
 
 # Device routes
+# @app.route('/device')
+# @login_required
+# def devices():
+#     devices_list = list(mongo.db.devices.find({'user_id': ObjectId(session['user_id'])}))
+#     farms = list(mongo.db.farms.find({'user_id': ObjectId(session['user_id'])}))
+    
+#     # Convert farms to dict for easy access
+#     farms_dict = {str(farm['_id']): farm for farm in farms}
+    
+#     return render_template('device/devices.html', devices=devices_list, farms=farms_dict)
+
+# app.py
+
 @app.route('/device')
 @login_required
 def devices():
-    devices_list = list(mongo.db.devices.find({'user_id': ObjectId(session['user_id'])}))
-    farms = list(mongo.db.farms.find({'user_id': ObjectId(session['user_id'])}))
+    user_id = ObjectId(session['user_id'])
+    devices_list = list(mongo.db.devices.find({'user_id': user_id}))
+    farms = list(mongo.db.farms.find({'user_id': user_id}))
     
     # Convert farms to dict for easy access
     farms_dict = {str(farm['_id']): farm for farm in farms}
     
-    return render_template('device/devices.html', devices=devices_list, farms=farms_dict)
+    # ================== BLOK BARU DIMULAI DI SINI ==================
+    # Ambil data sensor terakhir untuk setiap perangkat menggunakan aggregation
+    
+    pipeline = [
+        # 1. Urutkan semua data berdasarkan timestamp, dari yang terbaru
+        {'$sort': {'timestamp': -1}},
+        # 2. Kelompokkan berdasarkan device_id dan ambil data pertama (yang terbaru)
+        {'$group': {
+            '_id': '$device_id',
+            'latest_record': {'$first': '$$ROOT'}
+        }}
+    ]
+    
+    latest_data_cursor = mongo.db.sensor_data.aggregate(pipeline)
+    
+    # Buat dictionary untuk akses mudah di template: { 'device_id_string': { ... record ... } }
+    latest_data_dict = {}
+    for item in latest_data_cursor:
+        # Konversi semua tipe data agar JSON serializable
+        record = item['latest_record']
+        record['_id'] = str(record['_id'])
+        record['user_id'] = str(record['user_id'])
+        record['device_id'] = str(record['device_id'])
+        record['timestamp'] = record['timestamp'].isoformat()
+        latest_data_dict[str(item['_id'])] = record
+        
+    # =================== BLOK BARU SELESAI DI SINI ===================
+
+    return render_template('device/devices.html', 
+                           devices=devices_list, 
+                           farms=farms_dict,
+                           latest_data=latest_data_dict) # Kirim data terakhir ke template
 
 @app.route('/device/add', methods=['GET', 'POST'])
 @login_required
@@ -741,4 +786,4 @@ def user_stats():
         return jsonify({'success': False, 'message': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,port=5604)
