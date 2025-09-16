@@ -1,0 +1,435 @@
+/* =================================================================== */
+/* FILE CSS GABUNGAN FINAL                         */
+/* =================================================================== */
+
+/* -------------------------------------- */
+/* 1. GLOBAL STYLES & VARIABLES (Dari CSS Lama) */
+/* -------------------------------------- */
+:root {
+    --primary-color: #2c7da0;
+    --primary-rgb: 44, 125, 160;
+    --secondary-color: #a9d6e5;
+    --accent-color: #01497c;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+/* -------------------------------------- */
+/* 2. STYLING LANDING PAGE (Struktur Baru + Tema Lama) */
+/* -------------------------------------- */
+.landing-page {
+    background-color: #fff;
+}
+
+/* --- Navbar Landing Page (Hybrid) --- */
+#landingNav {
+    padding: 1rem 0;
+    transition: all 0.4s ease;
+}
+#landingNav .navbar-brand {
+    color: var(--dark-color);
+    font-weight: 700;
+}
+#landingNav .nav-link {
+    color: #555;
+    font-weight: 500;
+}
+#landingNav.scrolled {
+    background-color: var(--primary-color) !important;
+    padding: 0.5rem 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+#landingNav.scrolled .navbar-brand,
+#landingNav.scrolled .nav-link {
+    color: white !important;
+}
+/* Tombol di navbar landing page */
+.landing-page .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
+.landing-page .btn-primary:hover { background-color: var(--accent-color); border-color: var(--accent-color); }
+.landing-page .btn-outline-primary { color: var(--primary-color); border-color: var(--primary-color); }
+.landing-page .btn-outline-primary:hover { background-color: var(--primary-color); color: white; }
+
+/* --- Hero Section --- */
+.hero-section {
+    padding-top: 180px;
+    padding-bottom: 120px;
+    background-color: #eef3f5; /* Warna yang lebih cocok dengan tema */
+    position: relative;
+    overflow: hidden;
+}
+.hero-section::before {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(var(--primary-rgb), 0.1) 0%, rgba(var(--primary-rgb), 0) 70%);
+    top: -100px;
+    left: -100px;
+}
+.hero-image { animation: float 4s ease-in-out infinite; }
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+/* --- Feature Cards (Struktur Baru + Tema Lama) --- */
+.feature-card-v2 {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+.feature-card-v2:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(var(--primary-rgb), 0.1);
+    border-color: var(--primary-color);
+}
+.icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+}
+.bg-primary-soft { background-color: rgba(var(--primary-rgb), 0.1); color: var(--primary-color);}
+.bg-success-soft { background-color: rgba(40, 167, 69, 0.1); color: var(--success-color);}
+.bg-warning-soft { background-color: rgba(255, 193, 7, 0.1); color: var(--warning-color);}
+
+/* --- How it Works Section (Struktur Baru + Tema Lama) --- */
+.step-item { display: flex; align-items: flex-start; margin-bottom: 2rem; }
+.step-number {
+    flex-shrink: 0;
+    width: 50px;
+    height: 50px;
+    background-color: var(--primary-color);
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    margin-right: 1.5rem;
+}
+
+
+/* -------------------------------------- */
+/* 3. STYLING DASHBOARD (Struktur Baru + Tema Lama) */
+/* -------------------------------------- */
+.dashboard-page {
+    padding-top: 56px;
+    background-color: #f5f5f5;
+}
+
+/* --- Dashboard Navbar (Dari CSS Lama) --- */
+.dashboard-page .navbar {
+    background-color: var(--primary-color) !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 1020;
+}
+.dashboard-page .navbar-brand, 
+.dashboard-page .navbar-nav .nav-link {
+    color: white !important;
+}
+
+/* --- Sidebar (Dari CSS Lama) --- */
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 70px 15px 0;
+    background-color: var(--secondary-color);
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .05);
+}
+@media (max-width: 991.98px) { .sidebar { padding-top: 0; } }
+.sidebar .list-group-item {
+    background-color: transparent;
+    border: none;
+    color: var(--dark-color);
+    padding: 12px 20px;
+    border-radius: 5px;
+    margin: 5px 0;
+    font-weight: 500;
+}
+.sidebar .list-group-item:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+.sidebar .list-group-item.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* --- Konten Utama Dashboard --- */
+.main-content { padding-top: 1.5rem; }
+@media (min-width: 992px) { .main-content { margin-left: 16.666667%; } }
+
+/* --- Welcome Banner (Struktur Baru + Tema Lama) --- */
+.welcome-banner {
+    background-color: var(--primary-color);
+    box-shadow: 0 10px 25px rgba(var(--primary-rgb), 0.2);
+}
+.welcome-banner-img { height: 120px; opacity: 0.9; }
+
+/* --- Komponen Umum Dashboard (Dari CSS Lama) --- */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+.card:hover { transform: translateY(-5px); }
+.card-header {
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 10px 10px 0 0 !important;
+    border-bottom: none;
+    padding: 1rem 1.5rem;
+}
+.dashboard-card { text-align: center; }
+.dashboard-card i { font-size: 2.5rem; margin-bottom: 15px; color: var(--primary-color); }
+.dashboard-card .count { font-size: 2rem; font-weight: bold; color: var(--dark-color); }
+.dashboard-card .label { font-size: 1rem; color: #6c757d; }
+.chart-container { position: relative; height: 300px; width: 100%; }
+
+/* -------------------------------------- */
+/* 4. UTILITIES & KOMPONEN LAIN (Dari CSS Lama) */
+/* -------------------------------------- */
+#map { height: 400px; border-radius: 10px; }
+.device-status { display: inline-block; padding: 5px 10px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; }
+.status-on { background-color: var(--success-color); color: white; }
+.status-off { background-color: var(--danger-color); color: white; }
+.sensor-value { font-size: 2rem; font-weight: bold; color: var(--primary-color); }
+
+/* Form & Table Styles */
+.alert { border-radius: 10px; }
+.form-control, .form-select { border-radius: 5px; border: 1px solid #ced4da; }
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+}
+.table th { background-color: var(--primary-color); color: white; }
+.table-hover tbody tr:hover { background-color: var(--secondary-color); }
+
+/* =================================================================== */
+/* STYLING HALAMAN LOGIN & REGISTER                 */
+/* =================================================================== */
+
+.login-page {
+    background-color: #f5f5f5; /* Warna latar belakang form */
+}
+
+.login-visual {
+    background: linear-gradient(-45deg, var(--accent-color), var(--primary-color));
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.login-form-container {
+    width: 100%;
+    max-width: 450px;
+}
+
+.input-group-text {
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+}
+
+.form-control-lg {
+    min-height: calc(1.5em + 1rem + 2px);
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+}
+
+/* Mengatur agar halaman tidak perlu di-scroll saat keyboard mobile muncul */
+@media (max-width: 991.98px) {
+    .login-page .min-vh-100 {
+        min-height: auto !important;
+    }
+    .login-page .align-items-center {
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+    }
+}
+
+/* --- CSS UNTUK HERO SECTION --- */
+
+/* Mengatur posisi dasar untuk hero section */
+.hero-section {
+  position: relative;
+  /* Pastikan Anda sudah mengatur gambar background di sini */
+  /* contoh: background: url(...); */
+}
+
+/* Kode untuk lapisan overlay hitam semi-transparan */
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  
+  /* INI BAGIAN UTAMANYA */
+  background-color: rgba(0, 0, 0, 0.5); /* Warna hitam dengan transparansi 50% */
+  
+  z-index: 1;
+}
+
+/* Memastikan konten (teks, tombol) berada di atas lapisan overlay */
+.hero-section .container {
+  position: relative;
+  z-index: 2;
+}
+
+/* =================================================================== */
+/* STYLING HALAMAN PROFIL                             */
+/* =================================================================== */
+
+/* --- Avatar Pengguna --- */
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid var(--primary-color);
+    box-shadow: 0 4px 15px rgba(var(--primary-rgb), 0.2);
+    margin-bottom: 1.5rem;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-initials {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 3rem;
+    font-weight: 700;
+}
+
+/* --- Navigasi Tab --- */
+.nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+}
+
+.nav-tabs .nav-link {
+    color: #6c757d;
+    font-weight: 600;
+    border: none;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-tabs .nav-link.active,
+.nav-tabs .nav-link:hover {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    background-color: transparent;
+}
+
+/* --- Feed Aktivitas --- */
+.activity-feed .list-group-item {
+    display: flex;
+    align-items: flex-start;
+    border: none;
+    padding-left: 0;
+    padding-right: 0;
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.activity-feed .list-group-item:last-child {
+    padding-bottom: 0.5rem;
+}
+
+.activity-feed .list-group-item i {
+    font-size: 1.25rem;
+    margin-right: 1rem;
+    margin-top: 0.25rem;
+}
+
+/* Garis Timeline */
+.activity-feed .list-group-item::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 2rem;
+    bottom: -1rem;
+    width: 2px;
+    background-color: #e9ecef;
+}
+
+.activity-feed .list-group-item:last-child::before {
+    display: none;
+}
+
+/* =================================================================== */
+/* STYLING HALAMAN MANAJEMEN LAHAN                    */
+/* =================================================================== */
+
+.farm-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.farm-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(var(--primary-rgb), 0.1) !important;
+}
+
+.farm-card-img-container {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+}
+
+.farm-card-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.farm-card:hover .farm-card-img-container img {
+    transform: scale(1.05);
+}
+
+.status-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.farm-card .dropdown .btn {
+    --bs-btn-padding-y: .1rem; 
+    --bs-btn-padding-x: .4rem;
+    --bs-btn-font-size: .75rem;
+}

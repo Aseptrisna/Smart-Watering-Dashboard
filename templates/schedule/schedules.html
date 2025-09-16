@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Jadwal - Smart Watering</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --bg-main: #f8f9fa;
+            --bg-card: #ffffff;
+            --color-primary: #1E463F;
+            --color-text: #212529;
+            --color-muted: #6c757d;
+            --border-color: #dee2e6;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--color-text);
+        }
+        .wrapper { display: flex; }
+        .main-wrapper { flex-grow: 1; }
+        .content-area { padding: 2rem; }
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-card);
+            min-height: 100vh;
+            border-right: 1px solid var(--border-color);
+            transition: margin-left 0.3s ease;
+        }
+        .sidebar-brand { color: var(--color-text) !important; }
+        .sidebar .nav-link {
+            color: var(--color-text); font-weight: 500; padding: 0.85rem 1.5rem;
+            margin: 0.25rem 1rem; border-radius: 0.5rem;
+        }
+        .sidebar .nav-link i { margin-right: 1rem; }
+        .sidebar .nav-link:hover { color: var(--color-primary); }
+        .sidebar .nav-link.active { background-color: var(--color-primary); color: var(--bg-card); }
+        .card {
+            border: 1px solid var(--border-color); border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03); background-color: var(--bg-card);
+        }
+        .btn-primary { background-color: var(--color-primary); border-color: var(--color-primary); }
+        .btn-primary:hover { background-color: #14302A; border-color: #14302A; }
+        
+        .info-list { list-style: none; padding-left: 0; }
+        .info-list li {
+            display: flex; justify-content: space-between; padding: 0.6rem 0;
+        }
+        .info-list .label { color: var(--color-muted); }
+        .info-list .value { font-weight: 500; text-align: right; }
+        .form-check-input:checked { background-color: var(--color-primary); border-color: var(--color-primary); }
+        
+        .bottom-nav { display: none; }
+        @media (max-width: 991.98px) {
+            .wrapper { display: block; }
+            .sidebar { position: fixed; z-index: 1050; margin-left: -260px; }
+            .sidebar.active { margin-left: 0; }
+            .content-area { padding: 1.5rem 1rem; }
+            body { padding-bottom: 80px; }
+            .bottom-nav {
+                display: flex; position: fixed; bottom: 0; left: 0; right: 0;
+                height: 65px; background-color: var(--bg-card);
+                border-top: 1px solid var(--border-color);
+                justify-content: space-around; align-items: center; z-index: 1000;
+            }
+            .bottom-nav-item {
+                display: flex; flex-direction: column; align-items: center;
+                text-decoration: none; color: var(--color-muted); font-size: 0.7rem;
+            }
+            .bottom-nav-item i { font-size: 1.5rem; }
+            .bottom-nav-item.active { color: var(--color-primary); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-header text-center py-4">
+            <a href="{{ url_for('home') }}" class="h5 fw-bold text-decoration-none">
+                <i class="bi bi-droplet-half me-2" style="color: var(--color-primary);"></i>SmartWatering
+            </a>
+        </div>
+        <ul class="nav flex-column sidebar-nav">
+            <li class="nav-item"><a href="{{ url_for('home') }}" class="nav-link"><i class="bi bi-speedometer2"></i> <span>Dashboard</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('farms') }}" class="nav-link"><i class="bi bi-map"></i> <span>Lahan Saya</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('devices') }}" class="nav-link"><i class="bi bi-cpu"></i> <span>Perangkat</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('schedules') }}" class="nav-link active"><i class="bi bi-calendar4-week"></i> <span>Jadwal</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="bi bi-clock-history"></i> <span>Riwayat</span></a></li>
+        </ul>
+    </aside>
+
+    <div class="main-wrapper">
+        <main class="content-area">
+            <div class="container-fluid">
+                <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-4">
+                    <h1 class="h3 fw-bold mb-0">Manajemen Jadwal</h1>
+                    <a href="{{ url_for('add_schedule') }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Tambah Jadwal
+                    </a>
+                </div>
+
+                <div class="row">
+                    {% for schedule in schedules %}
+                    <div class="col-lg-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                <h5 class="card-title fw-bold mb-0 text-truncate">
+                                    <i class="bi bi-robot me-2" style="color: var(--color-primary);"></i>
+                                    {{ devices[schedule.device_id|string].name }}
+                                </h5>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" title="{{ 'Nonaktifkan' if schedule.enabled else 'Aktifkan' }} Jadwal"
+                                           data-schedule-id="{{ schedule._id }}" {% if schedule.enabled %}checked{% endif %}>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <ul class="info-list">
+                                    <li>
+                                        <span class="label">Aksi</span>
+                                        <span class="value badge {% if schedule.action == 'on' %}bg-success{% else %}bg-danger{% endif %} fs-6">{{ schedule.action|upper }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="label">Waktu</span>
+                                        <span class="value">{{ schedule.time }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="label">Hari</span>
+                                        <span class="value text-wrap">{{ schedule.days|join(', ') }}</span>
+                                    </li>
+                                    <li>
+                                        <span class="label">Kondisi</span>
+                                        <span class="value">
+                                            {% if schedule.condition_type %}
+                                                {% if schedule.condition_type == 'temperature' %}Suhu ≥ {{ schedule.condition_value }}°C
+                                                {% elif schedule.condition_type == 'humidity' %}Lembap Udara ≤ {{ schedule.condition_value }}%
+                                                {% elif schedule.condition_type == 'moisture' %}Lembap Tanah ≤ {{ schedule.condition_value }}%
+                                                {% endif %}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </span>
+                                    </li>
+                                </ul>
+                            </div>
+                             <div class="card-footer bg-light d-flex justify-content-end gap-2">
+                                <a href="{{ url_for('edit_schedule', schedule_id=schedule._id) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i> Edit</a>
+                                <a href="{{ url_for('delete_schedule', schedule_id=schedule._id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin ingin menghapus jadwal ini?')"><i class="bi bi-trash"></i> Hapus</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="col-12">
+                        <div class="card text-center py-5">
+                            <div class="card-body">
+                                <i class="bi bi-calendar-x display-4 text-muted mb-3"></i>
+                                <h4 class="card-title">Anda Belum Memiliki Jadwal</h4>
+                                <p class="text-muted">Buat jadwal penyiraman otomatis untuk perangkat aktuator Anda.</p>
+                                <a href="{{ url_for('add_schedule') }}" class="btn btn-primary mt-3"><i class="bi bi-plus-circle me-2"></i>Buat Jadwal Pertama Anda</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<nav class="bottom-nav">
+    <a href="{{ url_for('home') }}" class="bottom-nav-item"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
+    <a href="{{ url_for('farms') }}" class="bottom-nav-item"><i class="bi bi-map"></i><span>Lahan</span></a>
+    <a href="{{ url_for('devices') }}" class="bottom-nav-item"><i class="bi bi-cpu"></i><span>Perangkat</span></a>
+    <a href="{{ url_for('schedules') }}" class="bottom-nav-item active"><i class="bi bi-calendar4-week"></i><span>Jadwal</span></a>
+    <a href="{{ url_for('profile') }}" class="bottom-nav-item"><i class="bi bi-person"></i><span>Profil</span></a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleSwitches = document.querySelectorAll('.form-check-input[role="switch"]');
+    
+    toggleSwitches.forEach(toggle => {
+        toggle.addEventListener('change', function() {
+            const scheduleId = this.dataset.scheduleId;
+            const originalState = !this.checked;
+
+            // Optimistic UI update (jika berhasil, tidak perlu refresh)
+            // fetch ke URL toggle
+            fetch(`/schedule/${scheduleId}/toggle`)
+                .then(response => {
+                    if (!response.ok) {
+                        // Jika server mengembalikan error, kembalikan toggle ke state semula
+                        throw new Error('Gagal mengubah status');
+                    }
+                    // Jika sukses, biarkan toggle di state baru.
+                    // Backend sudah mengirim flash message, saat navigasi berikutnya akan terlihat.
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Kembalikan toggle ke state semula jika fetch gagal total
+                    this.checked = originalState; 
+                    alert('Terjadi kesalahan. Gagal mengubah status jadwal.');
+                });
+        });
+    });
+});
+</script>
+</body>
+</html>

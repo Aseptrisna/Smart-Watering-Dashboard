@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Perangkat: {{ device.name }} - Smart Watering</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #f8f9fa;
+            --bg-card: #ffffff;
+            --color-primary: #1E463F;
+            --color-text: #212529;
+            --color-muted: #6c757d;
+            --border-color: #dee2e6;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--color-text);
+        }
+        .wrapper { display: flex; }
+        .main-wrapper { flex-grow: 1; }
+        .content-area { padding: 2rem; }
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-card);
+            min-height: 100vh;
+            border-right: 1px solid var(--border-color);
+            transition: margin-left 0.3s ease;
+        }
+        .sidebar-brand { color: var(--color-text) !important; }
+        .sidebar .nav-link {
+            color: var(--color-text); font-weight: 500; padding: 0.85rem 1.5rem;
+            margin: 0.25rem 1rem; border-radius: 0.5rem;
+        }
+        .sidebar .nav-link i { margin-right: 1rem; }
+        .sidebar .nav-link:hover { color: var(--color-primary); }
+        .sidebar .nav-link.active { background-color: var(--color-primary); color: var(--bg-card); }
+        .card {
+            border: 1px solid var(--border-color); border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03); background-color: var(--bg-card);
+        }
+        .btn-primary { background-color: var(--color-primary); border-color: var(--color-primary); }
+        .btn-primary:hover { background-color: #14302A; border-color: #14302A; }
+        .info-list { list-style: none; padding-left: 0; }
+        .info-list li {
+            display: flex; justify-content: space-between; padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .info-list li:last-child { border-bottom: none; }
+        .info-list .label { color: var(--color-muted); }
+        .info-list .value { font-weight: 600; text-align: right; }
+        .status-badge { font-size: 0.75rem; font-weight: 600; padding: 0.3em 0.6em; border-radius: 0.375rem; }
+        .status-on { color: #155724; background-color: #d4edda; }
+        .status-off { color: #721c24; background-color: #f8d7da; }
+        .stat-widget {
+            background-color: var(--bg-main); border: 1px solid var(--border-color);
+            border-radius: 0.75rem; padding: 1.5rem; text-align: center;
+        }
+        .stat-widget .stat-icon { font-size: 2rem; color: var(--color-primary); margin-bottom: 0.75rem; }
+        .stat-widget .value { font-size: 2rem; font-weight: 600; line-height: 1; }
+        .stat-widget .label { font-size: 0.9rem; color: var(--color-muted); }
+
+        .bottom-nav { display: none; }
+        @media (max-width: 991.98px) {
+            .wrapper { display: block; }
+            .sidebar { position: fixed; z-index: 1050; margin-left: -260px; }
+            .sidebar.active { margin-left: 0; }
+            .content-area { padding: 1.5rem 1rem; }
+            body { padding-bottom: 80px; }
+            .bottom-nav {
+                display: flex; position: fixed; bottom: 0; left: 0; right: 0;
+                height: 65px; background-color: var(--bg-card);
+                border-top: 1px solid var(--border-color);
+                justify-content: space-around; align-items: center; z-index: 1000;
+            }
+            .bottom-nav-item {
+                display: flex; flex-direction: column; align-items: center;
+                text-decoration: none; color: var(--color-muted); font-size: 0.7rem;
+            }
+            .bottom-nav-item i { font-size: 1.5rem; }
+            .bottom-nav-item.active { color: var(--color-primary); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <aside class="sidebar">
+        <div class="sidebar-header text-center py-4">
+            <a href="{{ url_for('home') }}" class="h5 fw-bold text-decoration-none">
+                <i class="bi bi-droplet-half me-2" style="color: var(--color-primary);"></i>SmartWatering
+            </a>
+        </div>
+        <ul class="nav flex-column sidebar-nav">
+            <li class="nav-item"><a href="{{ url_for('home') }}" class="nav-link"><i class="bi bi-speedometer2"></i> <span>Dashboard</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('farms') }}" class="nav-link"><i class="bi bi-map"></i> <span>Lahan Saya</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('devices') }}" class="nav-link active"><i class="bi bi-cpu"></i> <span>Perangkat</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('schedules') }}" class="nav-link"><i class="bi bi-calendar4-week"></i> <span>Jadwal</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="bi bi-clock-history"></i> <span>Riwayat</span></a></li>
+        </ul>
+    </aside>
+
+    <div class="main-wrapper">
+        <main class="content-area">
+            <div class="container-fluid">
+                <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-4">
+                    <div class="d-flex align-items-center">
+                        <a href="{{ url_for('devices') }}" class="btn btn-light me-3"><i class="bi bi-arrow-left"></i></a>
+                        <div>
+                            <h1 class="h3 fw-bold mb-0">Detail Perangkat</h1>
+                            <p class="text-muted mb-0">{{ device.name }}</p>
+                        </div>
+                    </div>
+                    <div><a href="{{ url_for('edit_device', device_id=device._id) }}" class="btn btn-outline-secondary"><i class="bi bi-pencil me-2"></i>Edit</a></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-5 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-white"><h5 class="card-title fw-bold mb-0">Informasi Perangkat</h5></div>
+                            <div class="card-body">
+                                <ul class="info-list">
+                                    <li><span class="label">Nama</span><span class="value">{{ device.name }}</span></li>
+                                    <li><span class="label">Tipe</span><span class="value"><span class="badge bg-secondary-subtle text-secondary-emphasis">{{ device.type|title }}</span></span></li>
+                                    <li><span class="label">Status</span><span class="value"><span class="status-badge status-{{ device.status|lower }}">{{ device.status|upper }}</span></span></li>
+                                    <li><span class="label">Lahan</span><span class="value">{{ farm.name }}</span></li>
+                                    <li><span class="label">Topik MQTT</span><span class="value"><code>{{ device.topic }}</code></span></li>
+                                    <li><span class="label">Dibuat Pada</span><span class="value">{{ device.created_at.strftime('%d %b %Y, %H:%M') }}</span></li>
+                                </ul>
+                            </div>
+                            {% if device.type == 'actuator' %}
+                            <div class="card-footer p-3">
+                                <div class="btn-group w-100" role="group">
+                                    <button type="button" class="btn btn-lg btn-success device-control {% if device.status == 'on' %}active{% endif %}" data-device-id="{{ device._id }}" data-command="on"><i class="bi bi-play-fill"></i> ON</button>
+                                    <button type="button" class="btn btn-lg btn-danger device-control {% if device.status == 'off' %}active{% endif %}" data-device-id="{{ device._id }}" data-command="off"><i class="bi bi-stop-fill"></i> OFF</button>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7 mb-4">
+                        {% if device.type == 'sensor' and sensor_data %}
+                        <div class="card mb-4">
+                            <div class="card-header bg-white"><h5 class="card-title fw-bold mb-0">Data Sensor Terkini</h5></div>
+                            <div class="card-body">
+                                {% set latest_data = sensor_data[0] %}
+                                <div class="row text-center">
+                                    {% if latest_data.temperature is not none %}
+                                    <div class="col-md-4 mb-3 mb-md-0"><div class="stat-widget"><div class="stat-icon"><i class="bi bi-thermometer-half"></i></div><div class="value">{{ latest_data.temperature }}&deg;C</div><div class="label">Suhu</div></div></div>
+                                    {% endif %}
+                                    {% if latest_data.humidity is not none %}
+                                    <div class="col-md-4 mb-3 mb-md-0"><div class="stat-widget"><div class="stat-icon"><i class="bi bi-droplet"></i></div><div class="value">{{ latest_data.humidity }}%</div><div class="label">Lembap Udara</div></div></div>
+                                    {% endif %}
+                                    {% if latest_data.moisture is not none %}
+                                    <div class="col-md-4"><div class="stat-widget"><div class="stat-icon"><i class="bi bi-moisture"></i></div><div class="value">{{ latest_data.moisture }}%</div><div class="label">Lembap Tanah</div></div></div>
+                                    {% endif %}
+                                </div>
+                                <p class="text-muted text-center mt-3 mb-0 small">Terakhir update: {{ latest_data.timestamp.strftime('%d %b %Y, %H:%M') }}</p>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header bg-white"><h5 class="card-title fw-bold mb-0">Grafik Riwayat Sensor</h5></div>
+                            <div class="card-body">
+                                <canvas id="sensorChart" style="min-height: 250px;"></canvas>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="card h-100">
+                             <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                                <i class="bi bi-cpu display-4 text-muted"></i>
+                                <h5 class="mt-3">Perangkat Aktuator</h5>
+                                <p class="text-muted">Perangkat ini adalah aktuator. Gunakan tombol ON/OFF untuk mengontrolnya.</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<nav class="bottom-nav">
+    <a href="{{ url_for('home') }}" class="bottom-nav-item"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
+    <a href="{{ url_for('farms') }}" class="bottom-nav-item"><i class="bi bi-map"></i><span>Lahan</span></a>
+    <a href="{{ url_for('devices') }}" class="bottom-nav-item active"><i class="bi bi-cpu-fill"></i><span>Perangkat</span></a>
+    <a href="{{ url_for('profile') }}" class="bottom-nav-item"><i class="bi bi-person"></i><span>Profil</span></a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Kontrol Aktuator (jika ada)
+    const controlButtons = document.querySelectorAll('.device-control');
+    controlButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const deviceId = this.dataset.deviceId;
+            const command = this.dataset.command;
+            
+            fetch(`/device/${deviceId}/control/${command}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Refresh halaman untuk melihat status terbaru
+                        window.location.reload();
+                    } else {
+                        alert('Gagal mengirim perintah: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan jaringan.');
+                });
+        });
+    });
+
+    // Grafik Sensor (jika ada)
+    const ctx = document.getElementById('sensorChart');
+    {% if device.type == 'sensor' and sensor_data %}
+    const sensorData = {{ sensor_data | tojson | safe }};
+    const labels = sensorData.map(d => new Date(d.timestamp.$date).toLocaleTimeString('id-ID')).reverse();
+    const moistureData = sensorData.map(d => d.moisture).reverse();
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Kelembapan Tanah (%)',
+                data: moistureData,
+                borderColor: '{{ "var(--color-primary)" }}',
+                backgroundColor: 'rgba(30, 70, 63, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, max: 100 }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+    {% endif %}
+});
+</script>
+</body>
+</html>

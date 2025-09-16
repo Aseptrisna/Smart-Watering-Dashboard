@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Smart Watering</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <style>
+        :root {
+            --bg-main: #f8f9fa;
+            --bg-card: #ffffff;
+            --color-primary: #1E463F; /* Hijau tua yang teduh */
+            --color-text: #212529;
+            --color-muted: #6c757d;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--color-text);
+        }
+        
+        /* Layout */
+        .wrapper { display: flex; }
+        .main-wrapper { flex-grow: 1; }
+        .content-area { padding: 1.5rem; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-card);
+            min-height: 100vh;
+            border-right: 1px solid var(--border-color);
+            transition: margin-left 0.3s ease;
+        }
+        .sidebar-brand { color: var(--color-text) !important; }
+        .sidebar .nav-link {
+            color: var(--color-text);
+            font-weight: 500;
+            padding: 0.85rem 1.5rem;
+            margin: 0.25rem 1rem;
+            border-radius: 0.5rem;
+        }
+        .sidebar .nav-link i { margin-right: 1rem; }
+        .sidebar .nav-link:hover { color: var(--color-primary); }
+        .sidebar .nav-link.active {
+            background-color: var(--color-primary);
+            color: var(--bg-card);
+        }
+
+        /* Top Navbar */
+        .top-navbar {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+        }
+
+        /* Kartu & Elemen UI */
+        .card {
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+            background-color: var(--bg-card);
+        }
+        .stat-widget {
+            background-color: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .stat-widget .stat-icon { font-size: 2rem; color: var(--color-primary); margin-bottom: 0.75rem; }
+        .stat-widget .count { font-size: 2rem; font-weight: 600; line-height: 1; }
+        .stat-widget .label { font-size: 0.9rem; color: var(--color-muted); }
+        #dashboard-map { height: 500px; border-radius: 0.5rem; }
+        
+        /* Mobile */
+        .bottom-nav { display: none; }
+        @media (max-width: 991.98px) {
+            .wrapper { display: block; }
+            .sidebar { position: fixed; z-index: 1050; margin-left: -260px; }
+            .sidebar.active { margin-left: 0; }
+            .content-area { padding: 1.5rem 1rem; }
+            body { padding-bottom: 80px; }
+            #dashboard-map { height: 350px; }
+            .bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0; left: 0; right: 0;
+                height: 65px;
+                background-color: var(--bg-card);
+                border-top: 1px solid var(--border-color);
+                justify-content: space-around;
+                align-items: center;
+                z-index: 1000;
+            }
+            .bottom-nav-item {
+                display: flex; flex-direction: column; align-items: center;
+                text-decoration: none; color: var(--color-muted); font-size: 0.7rem;
+            }
+            .bottom-nav-item i { font-size: 1.5rem; }
+            .bottom-nav-item.active { color: var(--color-primary); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <aside class="sidebar offcanvas-lg offcanvas-start">
+        <div class="sidebar-header text-center py-4">
+            <a href="{{ url_for('home') }}" class="h5 fw-bold text-decoration-none">
+                <i class="bi bi-droplet-half me-2" style="color: var(--color-primary);"></i>SmartWatering
+            </a>
+        </div>
+        <ul class="nav flex-column sidebar-nav">
+            <li class="nav-item"><a href="{{ url_for('home') }}" class="nav-link active"><i class="bi bi-speedometer2"></i> <span>Dashboard</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('farms') }}" class="nav-link"><i class="bi bi-map"></i> <span>Lahan Saya</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('devices') }}" class="nav-link"><i class="bi bi-cpu"></i> <span>Perangkat</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('schedules') }}" class="nav-link"><i class="bi bi-calendar4-week"></i> <span>Jadwal</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('history') }}" class="nav-link"><i class="bi bi-clock-history"></i> <span>Riwayat</span></a></li>
+        </ul>
+    </aside>
+
+    <div class="main-wrapper">
+        <nav class="top-navbar p-2">
+            <div class="container-fluid d-flex align-items-center">
+                <button class="btn btn-light d-lg-none me-2" type="button" data-bs-toggle="offcanvas" data-bs-target=".sidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="ms-auto dropdown">
+                    <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle fs-4 me-2"></i>
+                        <span class="d-none d-sm-inline">{{ session.name }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="bi bi-person-lines-fill me-2"></i>Profil Saya</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        
+        <main class="content-area">
+            <div class="container-fluid">
+                <div class="mb-4">
+                    <h1 class="h3 fw-bold">Selamat Datang Kembali, {{ session.name }}! 👋</h1>
+                    <p class="text-muted">Berikut adalah ringkasan sistem Anda hari ini.</p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="stat-widget">
+                            <div class="stat-icon"><i class="bi bi-map"></i></div>
+                            <div class="count">{{ farms_count or '0' }}</div>
+                            <div class="label">Total Lahan</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="stat-widget">
+                            <div class="stat-icon"><i class="bi bi-cpu"></i></div>
+                            <div class="count">{{ devices_count or '0' }}</div>
+                            <div class="label">Total Perangkat</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="stat-widget">
+                            <div class="stat-icon"><i class="bi bi-calendar-check"></i></div>
+                            <div class="count">{{ schedules_count or '0' }}</div>
+                            <div class="label">Jadwal Aktif</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title fw-bold mb-0">Peta Lokasi Semua Lahan</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if farms %}
+                            <div id="dashboard-map"></div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="bi bi-compass display-4 text-muted"></i>
+                                <h5 class="mt-3">Peta Lahan Kosong</h5>
+                                <p class="text-muted">Tambahkan lahan pertama Anda untuk melihat lokasinya di sini.</p>
+                                <a href="{{ url_for('add_farm') }}" class="btn btn-primary mt-2">Tambah Lahan</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<nav class="bottom-nav">
+    <a href="{{ url_for('home') }}" class="bottom-nav-item active"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
+    <a href="{{ url_for('farms') }}" class="bottom-nav-item"><i class="bi bi-map"></i><span>Lahan</span></a>
+    <a href="{{ url_for('devices') }}" class="bottom-nav-item"><i class="bi bi-cpu"></i><span>Perangkat</span></a>
+    <a href="{{ url_for('profile') }}" class="bottom-nav-item"><i class="bi bi-person"></i><span>Profil</span></a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if farms %}
+    const farmsData = [
+        {% for farm in farms %}
+        {
+            lat: {{ farm.latitude }},
+            lng: {{ farm.longitude }},
+            name: "{{ farm.name | e }}",
+            url: "{{ url_for('farm_detail', farm_id=farm._id) }}"
+        },
+        {% endfor %}
+    ];
+
+    if (farmsData.length > 0) {
+        const map = L.map('dashboard-map');
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        const markers = [];
+        farmsData.forEach(farm => {
+            const marker = L.marker([farm.lat, farm.lng])
+                .bindPopup(`<b>${farm.name}</b><br><a href='${farm.url}'>Lihat Detail</a>`);
+            markers.push(marker);
+        });
+        const group = L.featureGroup(markers).addTo(map);
+        map.fitBounds(group.getBounds().pad(0.5));
+    }
+    {% endif %}
+});
+</script>
+</body>
+</html>

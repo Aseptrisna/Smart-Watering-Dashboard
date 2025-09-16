@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Daftar Akun Baru - Smart Watering{% endblock %}
+
+{% block body_class %}login-page{% endblock %} {# Menggunakan kelas yang sama dengan login untuk konsistensi #}
+
+{% block body_content %}
+<div class="container-fluid">
+    <div class="row min-vh-100">
+        <div class="col-lg-7 d-none d-lg-flex flex-column align-items-center justify-content-center text-white text-center p-5 login-visual">
+            <i class="bi bi-person-plus-fill display-1 mb-4" data-aos="zoom-in"></i>
+            <h1 class="display-4 fw-bold" data-aos="fade-down">Bergabunglah dengan Kami</h1>
+            <p class="lead mt-3" data-aos="fade-up" data-aos-delay="200">Mulai langkah Anda menuju pertanian yang lebih cerdas dan efisien hari ini.</p>
+        </div>
+
+        <div class="col-lg-5 d-flex flex-column align-items-center justify-content-center p-4">
+            <div class="login-form-container" data-aos="fade-up">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold">Buat Akun Baru</h2>
+                    <p class="text-muted">Isi data di bawah ini untuk memulai.</p>
+                </div>
+
+                {# Tampilkan pesan error jika ada #}
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('register') }}" class="needs-validation" novalidate>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                        <input type="text" class="form-control form-control-lg" id="name" name="name" placeholder="Nama Lengkap" required>
+                        <div class="invalid-feedback">Harap masukkan nama lengkap Anda.</div>
+                    </div>
+                    
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+                        <input type="email" class="form-control form-control-lg" id="email" name="email" placeholder="Alamat Email" required>
+                        <div class="invalid-feedback">Harap masukkan email yang valid.</div>
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        <input type="password" class="form-control form-control-lg" id="password" name="password" placeholder="Password" required>
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                            <i class="bi bi-eye-fill"></i>
+                        </button>
+                        <div class="invalid-feedback">Harap masukkan password.</div>
+                    </div>
+                    
+                    <div class="password-strength-meter mb-3">
+                        <div class="meter-bar"></div>
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        <input type="password" class="form-control form-control-lg" id="confirm_password" name="confirm_password" placeholder="Konfirmasi Password" required>
+                        <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                            <i class="bi bi-eye-fill"></i>
+                        </button>
+                        <div class="invalid-feedback" id="confirmPasswordFeedback">Harap konfirmasi password Anda.</div>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" value="" id="terms" required>
+                        <label class="form-check-label" for="terms">
+                            Saya setuju dengan <a href="#">Syarat & Ketentuan</a> yang berlaku.
+                        </label>
+                        <div class="invalid-feedback">Anda harus menyetujui syarat & ketentuan.</div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold">Daftar</button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-4">
+                    <p class="text-muted">Sudah punya akun? <a href="{{ url_for('login') }}" class="fw-bold text-decoration-none">Login di sini</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 1. Script untuk validasi form Bootstrap
+    (() => {
+        'use strict'
+        const forms = document.querySelectorAll('.needs-validation')
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })();
+
+    // 2. Script untuk toggle password (dibuat menjadi fungsi agar bisa dipakai ulang)
+    function setupPasswordToggle(toggleBtnId, passwordInputId) {
+        const toggleButton = document.getElementById(toggleBtnId);
+        const passwordInput = document.getElementById(passwordInputId);
+        const toggleIcon = toggleButton.querySelector('i');
+
+        toggleButton.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            toggleIcon.classList.toggle('bi-eye-fill');
+            toggleIcon.classList.toggle('bi-eye-slash-fill');
+        });
+    }
+    setupPasswordToggle('togglePassword', 'password');
+    setupPasswordToggle('toggleConfirmPassword', 'confirm_password');
+
+    // 3. Script untuk validasi kecocokan password
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const confirmPasswordFeedback = document.getElementById('confirmPasswordFeedback');
+
+    function validatePasswordMatch() {
+        if (passwordInput.value !== confirmPasswordInput.value) {
+            confirmPasswordInput.setCustomValidity("Password tidak cocok.");
+            confirmPasswordFeedback.textContent = "Password tidak cocok.";
+        } else {
+            confirmPasswordInput.setCustomValidity("");
+            confirmPasswordFeedback.textContent = "Harap konfirmasi password Anda.";
+        }
+    }
+    passwordInput.addEventListener('input', validatePasswordMatch);
+    confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+
+    // 4. Script untuk indikator kekuatan password
+    const strengthMeter = document.querySelector('.password-strength-meter .meter-bar');
+    passwordInput.addEventListener('input', function() {
+        const password = passwordInput.value;
+        let strength = 0;
+        if (password.length >= 8) strength += 1; // Panjang
+        if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength += 1; // Huruf besar & kecil
+        if (password.match(/\d/)) strength += 1; // Angka
+        if (password.match(/[^a-zA-Z\d]/)) strength += 1; // Simbol
+
+        strengthMeter.classList.remove('strength-1', 'strength-2', 'strength-3', 'strength-4');
+        if (strength > 0) {
+            strengthMeter.classList.add(`strength-${strength}`);
+        }
+    });
+
+</script>
+{% endblock %}

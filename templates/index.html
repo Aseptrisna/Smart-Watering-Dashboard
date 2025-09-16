@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if not session.user_id %}
+        Solusi Pertanian Cerdas Masa Depan
+    {% else %}
+        Dashboard
+    {% endif %}
+{% endblock %}
+
+{% block body_class %}
+    {% if not session.user_id %}
+        landing-page
+    {% else %}
+        dashboard-page
+    {% endif %}
+{% endblock %}
+
+
+{% block body_content %}
+    
+    {# ========================================================== #}
+    {# TAMPILAN JIKA PENGGUNA BELUM LOGIN (LANDING PAGE)          #}
+    {# ========================================================== #}
+    {% if not session.user_id %}
+
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="landingNav">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="bi bi-droplet-half me-2"></i>Smart Watering
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#landingNavMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="landingNavMenu">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="#features">Fitur</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#testimonials">Testimoni</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact">Kontak</a></li>
+                </ul>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-light ms-lg-3 me-2">Login</a>
+                <a href="{{ url_for('register') }}" class="btn btn-primary">Daftar Gratis</a>
+            </div>
+        </div>
+    </nav>
+
+ <header class="hero-section text-white text-center position-relative">
+    
+    <div class="hero-overlay"></div>
+
+    <div class="container position-relative">
+        <h1 class="display-3 fw-bold">Revolusi Pertanian di Tangan Anda</h1>
+        <p class="lead my-4">Siram tanaman secara otomatis, hemat air hingga 50%, dan pantau lahan Anda dari mana saja. Bergabunglah dengan masa depan pertanian cerdas.</p>
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg fw-bold">Mulai Sekarang <i class="bi bi-arrow-right-short"></i></a>
+    </div>
+    
+</header>
+
+    <section id="features" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Kenapa Memilih Smart Watering?</h2>
+                <p class="text-muted">Teknologi kami dirancang untuk efisiensi dan kemudahan.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card text-center p-4">
+                        <div class="feature-icon bg-primary text-white mb-3"><i class="bi bi-cpu-fill"></i></div>
+                        <h4 class="fw-semibold">Otomatis & Cerdas</h4>
+                        <p>Sensor kelembapan tanah memastikan tanaman disiram hanya saat dibutuhkan, menghindari pemborosan air dan overwatering.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card text-center p-4">
+                        <div class="feature-icon bg-success text-white mb-3"><i class="bi bi-water"></i></div>
+                        <h4 class="fw-semibold">Hemat Air & Biaya</h4>
+                        <p>Mengurangi konsumsi air secara signifikan, yang berarti tagihan lebih rendah dan pertanian lebih berkelanjutan.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card text-center p-4">
+                        <div class="feature-icon bg-warning text-white mb-3"><i class="bi bi-phone-fill"></i></div>
+                        <h4 class="fw-semibold">Pantau Jarak Jauh</h4>
+                        <p>Akses dasbor dari smartphone atau tablet untuk memantau dan mengontrol sistem penyiraman kapan saja, di mana saja.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="testimonials" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Apa Kata Mereka?</h2>
+                <p class="text-muted">Pengalaman nyata dari para petani dan penghobi yang telah menggunakan sistem kami.</p>
+            </div>
+            <div class="row">
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <p class="fst-italic">"Hasil panen saya meningkat 20% dan tagihan air turun drastis. Smart Watering benar-benar mengubah cara saya bertani. Sangat direkomendasikan!"</p>
+                        </div>
+                        <div class="card-footer bg-white border-0 d-flex align-items-center">
+                            <img src="https://i.pravatar.cc/50?img=1" class="rounded-circle me-3" alt="User">
+                            <div>
+                                <h6 class="mb-0 fw-bold">Budi Santoso</h6>
+                                <small class="text-muted">Petani Hidroponik, Bandung</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <p class="fst-italic">"Sebagai penghobi tanaman di rumah, saya sering lupa menyiram. Sekarang semuanya otomatis. Tanaman saya tidak pernah sesubur ini!"</p>
+                        </div>
+                        <div class="card-footer bg-white border-0 d-flex align-items-center">
+                            <img src="https://i.pravatar.cc/50?img=5" class="rounded-circle me-3" alt="User">
+                            <div>
+                                <h6 class="mb-0 fw-bold">Citra Lestari</h6>
+                                <small class="text-muted">Penghobi Tanaman, Jakarta</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <p class="fst-italic">"Instalasinya mudah dan antarmuka aplikasinya sangat ramah pengguna. Saya bisa memantau kebun dari kantor. Teknologi yang hebat!"</p>
+                        </div>
+                         <div class="card-footer bg-white border-0 d-flex align-items-center">
+                            <img src="https://i.pravatar.cc/50?img=8" class="rounded-circle me-3" alt="User">
+                            <div>
+                                <h6 class="mb-0 fw-bold">Agus Wijaya</h6>
+                                <small class="text-muted">Pemilik Kebun Buah, Malang</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact" class="bg-dark text-white pt-5 pb-4">
+        <div class="container text-center text-md-start">
+            <div class="row">
+                <div class="col-md-4 col-lg-4 col-xl-4 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 fw-bold text-primary">Smart Watering</h5>
+                    <p>Memberdayakan pertanian Indonesia dengan teknologi irigasi cerdas yang efisien, berkelanjutan, dan mudah diakses oleh semua kalangan.</p>
+                </div>
+                <div class="col-md-4 col-lg-2 col-xl-2 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 fw-bold">Tautan</h5>
+                    <p><a href="#features" class="text-white-50">Fitur</a></p>
+                    <p><a href="#!" class="text-white-50">Harga</a></p>
+                    <p><a href="#!" class="text-white-50">Bantuan</a></p>
+                </div>
+                <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 fw-bold">Kontak</h5>
+                    <p><i class="bi bi-geo-alt-fill me-3"></i> Bandung, Jawa Barat, Indonesia</p>
+                    <p><i class="bi bi-envelope-fill me-3"></i> info@smartwatering.id</p>
+                    <p><i class="bi bi-telephone-fill me-3"></i> +62 812 3456 7890</p>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p>&copy; 2025 Smart Watering. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+
+    {# ========================================================== #}
+    {# TAMPILAN JIKA PENGGUNA SUDAH LOGIN (DASHBOARD)             #}
+    {# ========================================================== #}
+    {% else %}
+    
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow-sm">
+        <div class="container-fluid">
+            <button class="navbar-toggler me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">
+                <i class="bi bi-droplet-fill me-2"></i>Smart Watering
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle me-1"></i> {{ session.name }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="bi bi-person-lines-fill me-2"></i>Profil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container-fluid">
+        <div class="row">
+            <aside class="col-lg-2 d-lg-block p-0 bg-light sidebar offcanvas-lg offcanvas-start" id="sidebarMenu">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title fw-bold">Menu Navigasi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <div class="list-group list-group-flush mt-3">
+                         <a href="{{ url_for('home') }}" class="list-group-item list-group-item-action {% if request.path == url_for('index') %}active{% endif %}"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+                         <a href="{{ url_for('farms') }}" class="list-group-item list-group-item-action {% if request.path.startswith('/farm') %}active{% endif %}"><i class="bi bi-map me-2"></i> Lahan Saya</a>
+                         <a href="{{ url_for('devices') }}" class="list-group-item list-group-item-action {% if request.path.startswith('/device') %}active{% endif %}"><i class="bi bi-cpu me-2"></i> Perangkat</a>
+                         <a href="{{ url_for('schedules') }}" class="list-group-item list-group-item-action {% if request.path.startswith('/schedule') %}active{% endif %}"><i class="bi bi-calendar-check me-2"></i> Jadwal</a>
+                         <a href="{{ url_for('history') }}" class="list-group-item list-group-item-action {% if request.path.startswith('/history') %}active{% endif %}"><i class="bi bi-clock-history me-2"></i> Riwayat</a>
+                    </div>
+                </div>
+            </aside>
+            
+            <main class="col-lg-10 ms-sm-auto p-4 main-content">
+                <div id="alert-container"></div>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <div class="p-4 mb-4 bg-light rounded-3">
+                    <div class="container-fluid">
+                        <h1 class="display-6 fw-bold">Selamat Datang Kembali, {{ session.name }}!</h1>
+                        <p class="fs-5">Berikut adalah ringkasan kondisi lahan dan perangkat Anda saat ini.</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="card text-center h-100 shadow-sm border-0 card-hover">
+                            <div class="card-body">
+                                <h2 class="card-title display-4"><i class="bi bi-moisture text-success"></i></h2>
+                                <h5 class="card-title">Kelembapan Rata-rata</h5>
+                                <p class="card-text display-5 fw-bold">65%</p>
+                            </div>
+                            <div class="card-footer text-muted bg-white border-0">Data real-time</div>
+                        </div>
+                    </div>
+                    </div>
+            </main>
+        </div>
+    </div>
+
+    {% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+    {% if not session.user_id %}
+    <script>
+        // Efek navbar berubah warna saat scroll untuk landing page
+        const nav = document.getElementById('landingNav');
+        window.onscroll = function () {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        };
+    </script>
+    {% endif %}
+{% endblock %}
