@@ -111,7 +111,7 @@ def register():
         session['email'] = email
         session['name'] = name
         flash('Registrasi berhasil!', 'success')
-        return redirect(url_for('auth/login.html'))
+        return redirect(url_for('login'))
     
     return render_template('auth/register.html')
 
