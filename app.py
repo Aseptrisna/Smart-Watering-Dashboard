@@ -322,7 +322,7 @@ def devices():
         # Konversi semua tipe data agar JSON serializable
         record = item['latest_record']
         record['_id'] = str(record['_id'])
-        record['user_id'] = str(record['user_id'])
+        # record['user_id'] = str(record['user_id'])
         record['device_id'] = str(record['device_id'])
         record['timestamp'] = record['timestamp'].isoformat()
         latest_data_dict[str(item['_id'])] = record
@@ -340,6 +340,7 @@ def add_device():
     farms = list(mongo.db.farms.find({'user_id': ObjectId(session['user_id'])}))
     
     if request.method == 'POST':
+        device_guid=request.form.get('device_guid')
         name = request.form.get('name')
         device_type = request.form.get('type')
         farm_id = request.form.get('farm_id')
@@ -349,6 +350,7 @@ def add_device():
         mongo.db.devices.insert_one({
             'user_id': ObjectId(session['user_id']),
             'farm_id': ObjectId(farm_id),
+            'device_guid':device_guid,
             'name': name,
             'type': device_type,
             'topic': topic,
@@ -399,7 +401,7 @@ def device_detail(device_id):
     for record in sensor_data_cursor:
         # Ubah setiap ObjectId dan datetime menjadi string
         record['_id'] = str(record['_id'])
-        record['user_id'] = str(record['user_id'])
+        # record['user_id'] = str(record['user_id'])
         record['device_id'] = str(record['device_id'])
         # Konversi timestamp ke format ISO yang standar untuk JavaScript
         record['timestamp'] = record['timestamp'].isoformat()
@@ -423,6 +425,7 @@ def edit_device(device_id):
     farms = list(mongo.db.farms.find({'user_id': ObjectId(session['user_id'])}))
     
     if request.method == 'POST':
+        device_guid=request.form.get('device_guid')
         name = request.form.get('name')
         device_type = request.form.get('type')
         farm_id = request.form.get('farm_id')
@@ -432,6 +435,7 @@ def edit_device(device_id):
         mongo.db.devices.update_one(
             {'_id': ObjectId(device_id)},
             {'$set': {
+                'device_guid':device_guid,
                 'name': name,
                 'type': device_type,
                 'farm_id': ObjectId(farm_id),
@@ -474,17 +478,28 @@ def control_device(device_id, command):
         )
         connection = pika.BlockingConnection(parameters)
         channel = connection.channel()
+        print(command)
         
-        message = {
-            'device_id': device_id,
-            'command': command,
-            'timestamp': datetime.utcnow().isoformat()
-        }
+        # message = {
+        #     'device_id': device_id,
+        #     'command': command,
+        #     'timestamp': datetime.utcnow().isoformat()
+        # }
+
+        # mapping command -> angka
+        command_value = "0" if command.lower() == "on" else "1"
+
+        # gunakan deviceGuid / topic dari DB
+        guid_device = str(device.get("device_guid", device_id))
+
+        # format pesan
+        message = f"{guid_device}#{command_value}"
+        print("[SEND]", message)
         
         channel.basic_publish(
             exchange='',
-            routing_key=device['topic'],
-            body=json.dumps(message)
+            routing_key='Aktuator',
+            body=message.encode("utf-8")
         )
         
         connection.close()

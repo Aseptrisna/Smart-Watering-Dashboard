@@ -101,6 +101,7 @@
                             <div class="card-header bg-white"><h5 class="card-title fw-bold mb-0">Informasi Perangkat</h5></div>
                             <div class="card-body">
                                 <ul class="info-list">
+                                    <li><span class="label">GUID:</span><span class="value">{{ device.device_guid }}</span></li>
                                     <li><span class="label">Nama</span><span class="value">{{ device.name }}</span></li>
                                     <li><span class="label">Tipe</span><span class="value"><span class="badge bg-secondary-subtle text-secondary-emphasis">{{ device.type|title }}</span></span></li>
                                     <li><span class="label">Status</span><span class="value"><span class="status-badge status-{{ device.status|lower }}">{{ device.status|upper }}</span></span></li>
@@ -269,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const allData = {{ sensor_data | tojson | safe }};
         const sensorRecords = allData.filter(d => d.temperature !== null || d.humidity !== null || d.moisture !== null);
 
-        const labels = sensorRecords.map(d => new Date(d.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })).reverse();
+        const labels = sensorRecords.map(d => new Date(d.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })).reverse();
         const tempData = sensorRecords.map(d => d.temperature || null).reverse();
         const humidityData = sensorRecords.map(d => d.humidity || null).reverse();
         const moistureData = sensorRecords.map(d => d.moisture || null).reverse();
